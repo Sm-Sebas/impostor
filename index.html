@@ -76,9 +76,10 @@
         <h1 id="turn-name">Jugador</h1>
         <div class="card">
             <div id="turn-content">
-                <!-- Se inyecta dinámicamente el botón de revelar o la instrucción de paso -->
+                <!-- Contenido dinámico -->
             </div>
         </div>
+        <button class="btn-back" id="btn-correct-names" onclick="rollbackToNames()">← Corregir nombres</button>
     </div>
 
     <!-- PANTALLA 4: JUEGO EN PROCESO -->
@@ -92,9 +93,9 @@
 </div>
 
 <script>
-    // ✏️ Modifica esta lista con vuestras expresiones reales
+   
     const palabras = [
-       "En la buena",
+         "En la buena",
             "Pailas",
             "Grua",
             "Se te moja la canoa",
@@ -103,7 +104,7 @@
             "Caigo en Gajo",   
             "Voltiarepa",
             "Caleta",
-            "Sisas",
+            "Sisas"
     ];
 
     let state = { players: [], impostors: [], current: 0, secret: "" };
@@ -136,12 +137,20 @@
         state.impostors = [];
         
         const nImp = parseInt(document.getElementById('num-impostors').value) || 1;
-        const maxImp = Math.floor((state.players.length - 1) / 2);
-        const finalImpCount = Math.min(nImp, maxImp > 0 ? maxImp : 1);
+        
+        // El número máximo de impostores no puede ser igual o mayor al total de jugadores
+        const finalImpCount = Math.min(nImp, state.players.length - 1);
+
+        // Algoritmo de mezcla aleatoria (Fisher-Yates simplificado) para garantizar azar real
+        let indicesDisponibles = [];
+        for (let i = 0; i < state.players.length; i++) {
+            indicesDisponibles.push(i);
+        }
 
         while(state.impostors.length < finalImpCount) {
-            let r = Math.floor(Math.random() * state.players.length);
-            if(!state.impostors.includes(r)) state.impostors.push(r);
+            let randomIndex = Math.floor(Math.random() * indicesDisponibles.length);
+            let selectedPlayerIndex = indicesDisponibles.splice(randomIndex, 1)[0];
+            state.impostors.push(selectedPlayerIndex);
         }
         
         state.current = 0;
@@ -149,17 +158,23 @@
         prepareTurnDisplay();
     }
 
-    // Fuerza la seguridad absoluta ocultando los datos previos antes de entregar el móvil
     function prepareTurnDisplay() {
         document.getElementById('turn-name').innerText = state.players[state.current];
         document.getElementById('turn-content').innerHTML = `
             <div class="pass-instruction">Asegúrate de que solo tú estás viendo la pantalla.</div>
             <button class="btn-primary" onclick="revealRole()">Ver mi rol</button>
-            <button class="btn-back" onclick="rollbackToNames()">← Corregir nombres</button>
         `;
+        
+        if (state.current === 0) {
+            document.getElementById('btn-correct-names').classList.remove('hidden');
+        } else {
+            document.getElementById('btn-correct-names').classList.add('hidden');
+        }
     }
 
     function revealRole() {
+        document.getElementById('btn-correct-names').classList.add('hidden');
+
         const isImp = state.impostors.includes(state.current);
         document.getElementById('turn-content').innerHTML = `
             <div class="role-display ${isImp ? 'is-impostor' : 'is-innocent'}">
@@ -174,12 +189,7 @@
         if(state.current >= state.players.length) {
             showScreen('screen-play');
         } else {
-            // Pantalla intermedia obligatoria de seguridad: borra el rol anterior por completo
-            document.getElementById('turn-name').innerText = "Cambio de turno";
-            document.getElementById('turn-content').innerHTML = `
-                <div class="pass-instruction">Entrega el teléfono a de forma segura a:<br><strong style="color:#fff; font-size:16px;">${state.players[state.current]}</strong></div>
-                <button class="btn-primary" onclick="prepareTurnDisplay()">Ya tengo el móvil</button>
-            `;
+            prepareTurnDisplay();
         }
     }
 
