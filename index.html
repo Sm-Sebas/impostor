@@ -2,108 +2,380 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Impostor de Coleguis</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Impostor de Coleguis | Custom Edition</title>
     <style>
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #121212; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; text-align: center; }
-        .card { background: #1e1e1e; padding: 30px; border-radius: 15px; box-shadow: 0 8px 16px rgba(0,0,0,0.5); max-width: 400px; width: 100%; border: 2px solid #333; }
-        h1 { color: #ff4757; margin-top: 0; }
-        .btn { background-color: #2ed573; color: white; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 15px; transition: 0.2s; }
-        .btn:hover { background-color: #26af5f; }
-        .btn-danger { background-color: #ff4757; }
-        .btn-danger:hover { background-color: #ff2e44; }
-        input, select { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #444; background: #2a2a2a; color: white; font-size: 16px; }
-        .secret-box { background: #2a2a2a; border: 2px dashed #ff4757; padding: 20px; margin: 20px 0; border-radius: 8px; font-size: 24px; font-weight: bold; display: none; }
-        .hidden { display: none; }
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --accent-primary: #58a6ff;
+            --accent-danger: #f85149;
+            --accent-success: #3fb950;
+            --text-main: #c9d1d9;
+            --text-title: #f0f6fc;
+            --border-color: #30363d;
+            --shadow: 0 4px 12px rgba(0,0,0,0.5);
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: opacity var(--transition-speed);
+        }
+
+        .screen.hidden {
+            display: none !important;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            border: 1px solid var(--border-color);
+        }
+
+        .game-title {
+            color: var(--accent-primary);
+            font-weight: 800;
+            font-size: 32px;
+            margin: 0 0 10px 0;
+            letter-spacing: -1px;
+            background: linear-gradient(135deg, #79c0ff 0%, #308cf2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        .screen-subtitle {
+            font-size: 15px;
+            color: var(--text-main);
+            margin: 0 0 25px 0;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        /* --- Formularios y Selectores --- */
+        .form-group {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-title);
+            font-size: 14px;
+        }
+
+        select, input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: #21262d;
+            color: var(--text-title);
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        select:focus, input[type="text"]:focus {
+            border-color: var(--accent-primary);
+        }
+
+        /* --- Lista de Nombres Dinámica --- */
+        .names-list-container {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 5px;
+        }
+
+        .name-input-wrapper {
+            margin-bottom: 10px;
+        }
+
+        /* --- Controles de Configuración --- */
+        .player-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(48, 54, 61, 0.4);
+            border-radius: 12px;
+            padding: 8px 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+        }
+
+        .player-btn {
+            background: #21262d;
+            border: 1px solid var(--border-color);
+            color: var(--accent-primary);
+            border-radius: 6px;
+            padding: 5px 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .control-text {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-title);
+        }
+
+        /* --- Modos Especiales de Revelación --- */
+        .action-needed-box {
+            background: rgba(88, 166, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid rgba(88, 166, 255, 0.2);
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .secret-box {
+            background: #0d1117;
+            padding: 25px;
+            border-radius: 16px;
+            font-size: 26px;
+            font-weight: 800;
+            border: 2px solid;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            letter-spacing: -0.5px;
+        }
+
+        /* --- Botones --- */
+        .btn {
+            background: #238636;
+            color: #ffffff;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: var(--shadow);
+        }
+
+        .btn:hover { background: #2ea043; }
+        .btn-reveal { background: #21262d; border: 1px solid var(--border-color); color: var(--accent-primary); }
+        .btn-reveal:hover { background: #30363d; }
     </style>
 </head>
 <body>
 
-    <!-- PANTALLA 1: CONFIGURACIÓN -->
-    <div id="screen-setup" class="card">
-        <h1>🕵️‍♂️ El Impostor</h1>
-        <p>Configura la partida con vuestras palabras internas.</p>
-        <label>Número de Jugadores:</label>
-        <input type="number" id="total-players" value="4" min="3">
-        <button class="btn" onclick="startSetup()">Empezar Partida</button>
-    </div>
+    <div class="main-container">
 
-    <!-- PANTALLA 2: REVELAR ROLES -->
-    <div id="screen-game" class="card hidden">
-        <h2 id="turn-title">Turno del Jugador 1</h2>
-        <p>Pulsa el botón para ver tu palabra en secreto. ¡Que nadie más mire!</p>
-        
-        <button class="btn" id="btn-reveal" onclick="revealRole()">👁️ Ver Palabra / Rol</button>
-        <div id="secret-word" class="secret-box"></div>
-        <button class="btn btn-danger hidden" id="btn-next" onclick="nextTurn()">Siguiente Jugador ➡️</button>
-    </div>
+        <div id="screen-setup" class="screen">
+            <div class="card">
+                <h1 class="game-title">IMPOSTOR</h1>
+                <p class="screen-subtitle">Configura las reglas de la ronda</p>
+                
+                <div class="form-group">
+                    <label>Elige la Categoría</label>
+                    <select id="category-select">
+                        <option value="fiesta">🥳 Frases de Fiesta</option>
+                        <option value="uni">🎓 Anécdotas de la Uni</option>
+                        <option value="motes">🥸 Motes del Grupo</option>
+                    </select>
+                </div>
 
-    <!-- PANTALLA 3: JUEGO EN PROCESO -->
-    <div id="screen-play" class="card hidden">
-        <h1>🗣️ ¡A Jugar!</h1>
-        <p>Todos los jugadores ya conocen su rol. Empieza la ronda de preguntas.</p>
-        <p>Cuando sepáis quién es el impostor, haced la votación.</p>
-        <button class="btn" onclick="resetGame()">🔄 Nueva Partida</button>
+                <div class="player-control">
+                    <span id="total-players-text" class="control-text">Jugadores: 4</span>
+                    <div>
+                        <button class="player-btn" onclick="changePlayers(-1)">-</button>
+                        <button class="player-btn" onclick="changePlayers(1)">+</button>
+                    </div>
+                </div>
+
+                <div class="player-control">
+                    <span id="total-impostors-text" class="control-text">Impostores: 1</span>
+                    <div>
+                        <button class="player-btn" onclick="changeImpostors(-1)">-</button>
+                        <button class="player-btn" onclick="changeImpostors(1)">+</button>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="goToNamesScreen()">Siguiente: Nombres ➡️</button>
+            </div>
+        </div>
+
+        <div id="screen-names" class="screen hidden">
+            <div class="card">
+                <h1 class="game-title">¿QUIÉN JUEGA?</h1>
+                <p class="screen-subtitle">Introduce los nombres de los participantes</p>
+                
+                <div id="names-inputs-container" class="names-list-container">
+                    </div>
+
+                <button class="btn" onclick="startGame()">¡Empezar Partida! 🚀</button>
+            </div>
+        </div>
+
+        <div id="screen-game" class="screen hidden">
+            <div class="card">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h2 id="turn-title" style="color: var(--text-title); margin: 0; font-size: 26px;">Nombre</h2>
+                    <p id="turn-subtitle" class="screen-subtitle" style="margin: 5px 0 0 0;">Te toca ver tu rol</p>
+                </div>
+                
+                <button class="btn btn-reveal" id="btn-reveal" onclick="revealRole()">👁️ VER MI ROL EN SECRETO</button>
+                
+                <div id="secret-word-display" class="action-needed-box hidden">
+                    <p class="screen-subtitle" style="margin-bottom: 10px;">Tu palabra clave es:</p>
+                    <div id="secret-word" class="secret-box"></div>
+                    <p class="screen-subtitle" style="margin-top: 15px; margin-bottom: 0;">¡Pasa el móvil boca abajo!</p>
+                </div>
+
+                <button class="btn" id="btn-next" onclick="nextTurn()" style="margin-top: 20px; display: none;">SIGUIENTE JUGADOR ➡️</button>
+            </div>
+        </div>
+
+        <div id="screen-play" class="screen hidden">
+            <div class="card">
+                <h1 class="game-title">¡RONDAS!</h1>
+                <p class="screen-subtitle" id="impostors-count-text">Hay X impostores ocultos.</p>
+                <div class="secret-box" style="border-color: var(--accent-primary); border-style: dotted; min-height: 80px; font-size: 22px; color: var(--accent-primary);">🗣️ ¡A preguntar!</div>
+                <button class="btn btn-reveal" onclick="resetGame()" style="margin-top: 30px;">🔄 NUEVA PARTIDA</button>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        // ✏️ MODIFICA ESTO: Añade aquí vuestras frases y palabras internas
-        const palabrasSecretas = [
-            "La vieja confiable",
-            "De locos",
-            "Literal",
-            "F por eso",
-            "Chill",
-            "Padreando",
-            "Es cine"
-        ];
+        const categoriasDePalabras = {
+            fiesta: ["La vieja confiable", "Tiki Taka", "Hasta las tantas", "Jarra de litro", "Pagar a medias", "Un cubata y a casa"],
+            uni: ["Examen sorpresa", "El de la primera fila", "Cafetería a las 10", "Copiar en el parcial", "Quedarse dormido", "PDF final final"],
+            motes: ["El pesao", "La drama queen", "El tardón", "El fantasma", "El organizador", "El que nunca tiene batería"]
+        };
 
-        let totalPlayers = 0;
-        let impostorIndex = -1;
+        let totalPlayers = 4;
+        let totalImpostors = 1;
+        let jugadores = [];
+        let impostoresIndices = [];
         let currentPlayer = 0;
         let palabraDeLaRonda = "";
 
-        function startSetup() {
-            totalPlayers = parseInt(document.getElementById('total-players').value);
-            if (totalPlayers < 3) {
-                alert("Necesitáis al menos 3 jugadores.");
-                return;
+        function changePlayers(amount) {
+            totalPlayers = Math.max(3, Math.min(12, totalPlayers + amount));
+            document.getElementById('total-players-text').innerText = `Jugadores: ${totalPlayers}`;
+            
+            // Validar que los impostores no superen el límite lógico (siempre menos de la mitad de jugadores)
+            const maxImpostorsPermitidos = Math.floor((totalPlayers - 1) / 2);
+            if (totalImpostors > maxImpostorsPermitidos) {
+                totalImpostors = Math.max(1, maxImpostorsPermitidos);
+                document.getElementById('total-impostors-text').innerText = `Impostores: ${totalImpostors}`;
             }
+        }
+
+        function changeImpostors(amount) {
+            const maxImpostorsPermitidos = Math.floor((totalPlayers - 1) / 2);
+            totalImpostors = Math.max(1, Math.min(maxImpostorsPermitidos, totalImpostors + amount));
+            document.getElementById('total-impostors-text').innerText = `Impostores: ${totalImpostors}`;
+        }
+
+        function switchScreen(fromId, toId) {
+            document.getElementById(fromId).classList.add('hidden');
+            document.getElementById(toId).classList.remove('hidden');
+        }
+
+        function goToNamesScreen() {
+            const container = document.getElementById('names-inputs-container');
+            container.innerHTML = '';
             
-            // Elegir palabra y posición del impostor al azar
-            palabraDeLaRonda = palabrasSecretas[Math.floor(Math.random() * palabrasSecretas.length)];
-            impostorIndex = Math.floor(Math.random() * totalPlayers);
-            
+            for (let i = 1; i <= totalPlayers; i++) {
+                container.innerHTML += `
+                    <div class="name-input-wrapper">
+                        <label>Jugador ${i}</label>
+                        <input type="text" class="player-name-input" value="Jugador ${i}" onfocus="this.select()">
+                    </div>
+                `;
+            }
+            switchScreen('screen-setup', 'screen-names');
+        }
+
+        function startGame() {
+            const inputs = document.querySelectorAll('.player-name-input');
+            jugadores = Array.from(inputs).map(input => input.value.trim() || "Anónimo");
+
+            const categoriaSeleccionada = document.getElementById('category-select').value;
+            const palabras = categoriasDePalabras[categoriaSeleccionada];
+            palabraDeLaRonda = palabras[Math.floor(Math.random() * palabras.length)];
+
+            // Asignación manual de impostores seleccionados
+            impostoresIndices = [];
+            while(impostoresIndices.length < totalImpostors) {
+                let indexAleatorio = Math.floor(Math.random() * totalPlayers);
+                if(!impostoresIndices.includes(indexAleatorio)) {
+                    impostoresIndices.push(indexAleatorio);
+                }
+            }
+
             currentPlayer = 0;
-            
-            document.getElementById('screen-setup').classList.add('hidden');
-            document.getElementById('screen-game').classList.remove('hidden');
+            switchScreen('screen-names', 'screen-game');
             updateTurnView();
         }
 
         function updateTurnView() {
-            document.getElementById('turn-title').innerText = `Jugador ${currentPlayer + 1} de ${totalPlayers}`;
-            document.getElementById('secret-word').classList.add('hidden');
-            document.getElementById('secret-word').style.display = 'none';
-            document.getElementById('btn-reveal').classList.remove('hidden');
-            document.getElementById('btn-next').classList.add('hidden');
+            document.getElementById('turn-title').innerText = jugadores[currentPlayer];
+            document.getElementById('turn-subtitle').innerText = `Te toca mirar la pantalla`;
+            
+            document.getElementById('secret-word-display').classList.add('hidden');
+            document.getElementById('btn-reveal').style.display = 'block';
+            document.getElementById('btn-next').style.display = 'none';
         }
 
         function revealRole() {
             const secretBox = document.getElementById('secret-word');
+            const displayBox = document.getElementById('secret-word-display');
             
-            if (currentPlayer === impostorIndex) {
-                secretBox.innerText = "🕵️‍♂️ ¡Eres el IMPOSTOR! Disimula.";
-                secretBox.style.color = "#ff4757";
+            if (impostoresIndices.includes(currentPlayer)) {
+                secretBox.innerText = "🕵️‍♂️ IMPOSTOR";
+                secretBox.style.color = "var(--accent-danger)";
+                secretBox.style.borderColor = "rgba(248, 81, 73, 0.5)";
             } else {
-                secretBox.innerText = `Palabra: ${palabraDeLaRonda}`;
-                secretBox.style.color = "#2ed573";
+                secretBox.innerText = palabraDeLaRonda.toUpperCase();
+                secretBox.style.color = "var(--accent-success)";
+                secretBox.style.borderColor = "rgba(63, 185, 80, 0.5)";
             }
             
-            secretBox.style.display = 'block';
-            document.getElementById('btn-reveal').classList.add('hidden');
-            document.getElementById('btn-next').classList.remove('hidden');
+            displayBox.classList.remove('hidden');
+            document.getElementById('btn-reveal').style.display = 'none';
+            document.getElementById('btn-next').style.display = 'block';
         }
 
         function nextTurn() {
@@ -111,15 +383,13 @@
             if (currentPlayer < totalPlayers) {
                 updateTurnView();
             } else {
-                // Fin del reparto de roles
-                document.getElementById('screen-game').classList.add('hidden');
-                document.getElementById('screen-play').classList.remove('hidden');
+                document.getElementById('impostors-count-text').innerText = `Hay ${totalImpostors} ${totalImpostors > 1 ? 'impostores ocultos' : 'impostor oculto'} en el grupo.`;
+                switchScreen('screen-game', 'screen-play');
             }
         }
 
         function resetGame() {
-            document.getElementById('screen-play').classList.add('hidden');
-            document.getElementById('screen-setup').classList.remove('hidden');
+            switchScreen('screen-play', 'screen-setup');
         }
     </script>
 </body>
