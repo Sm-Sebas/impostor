@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Impostor de Coleguis</title>
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #121212; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; text-align: center; }
+        .card { background: #1e1e1e; padding: 30px; border-radius: 15px; box-shadow: 0 8px 16px rgba(0,0,0,0.5); max-width: 400px; width: 100%; border: 2px solid #333; }
+        h1 { color: #ff4757; margin-top: 0; }
+        .btn { background-color: #2ed573; color: white; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 15px; transition: 0.2s; }
+        .btn:hover { background-color: #26af5f; }
+        .btn-danger { background-color: #ff4757; }
+        .btn-danger:hover { background-color: #ff2e44; }
+        input, select { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #444; background: #2a2a2a; color: white; font-size: 16px; }
+        .secret-box { background: #2a2a2a; border: 2px dashed #ff4757; padding: 20px; margin: 20px 0; border-radius: 8px; font-size: 24px; font-weight: bold; display: none; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- PANTALLA 1: CONFIGURACIÓN -->
+    <div id="screen-setup" class="card">
+        <h1>🕵️‍♂️ El Impostor</h1>
+        <p>Configura la partida con vuestras palabras internas.</p>
+        <label>Número de Jugadores:</label>
+        <input type="number" id="total-players" value="4" min="3">
+        <button class="btn" onclick="startSetup()">Empezar Partida</button>
+    </div>
+
+    <!-- PANTALLA 2: REVELAR ROLES -->
+    <div id="screen-game" class="card hidden">
+        <h2 id="turn-title">Turno del Jugador 1</h2>
+        <p>Pulsa el botón para ver tu palabra en secreto. ¡Que nadie más mire!</p>
+        
+        <button class="btn" id="btn-reveal" onclick="revealRole()">👁️ Ver Palabra / Rol</button>
+        <div id="secret-word" class="secret-box"></div>
+        <button class="btn btn-danger hidden" id="btn-next" onclick="nextTurn()">Siguiente Jugador ➡️</button>
+    </div>
+
+    <!-- PANTALLA 3: JUEGO EN PROCESO -->
+    <div id="screen-play" class="card hidden">
+        <h1>🗣️ ¡A Jugar!</h1>
+        <p>Todos los jugadores ya conocen su rol. Empieza la ronda de preguntas.</p>
+        <p>Cuando sepáis quién es el impostor, haced la votación.</p>
+        <button class="btn" onclick="resetGame()">🔄 Nueva Partida</button>
+    </div>
+
+    <script>
+        // ✏️ MODIFICA ESTO: Añade aquí vuestras frases y palabras internas
+        const palabrasSecretas = [
+            "La vieja confiable",
+            "De locos",
+            "Literal",
+            "F por eso",
+            "Chill",
+            "Padreando",
+            "Es cine"
+        ];
+
+        let totalPlayers = 0;
+        let impostorIndex = -1;
+        let currentPlayer = 0;
+        let palabraDeLaRonda = "";
+
+        function startSetup() {
+            totalPlayers = parseInt(document.getElementById('total-players').value);
+            if (totalPlayers < 3) {
+                alert("Necesitáis al menos 3 jugadores.");
+                return;
+            }
+            
+            // Elegir palabra y posición del impostor al azar
+            palabraDeLaRonda = palabrasSecretas[Math.floor(Math.random() * palabrasSecretas.length)];
+            impostorIndex = Math.floor(Math.random() * totalPlayers);
+            
+            currentPlayer = 0;
+            
+            document.getElementById('screen-setup').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+            updateTurnView();
+        }
+
+        function updateTurnView() {
+            document.getElementById('turn-title').innerText = `Jugador ${currentPlayer + 1} de ${totalPlayers}`;
+            document.getElementById('secret-word').classList.add('hidden');
+            document.getElementById('secret-word').style.display = 'none';
+            document.getElementById('btn-reveal').classList.remove('hidden');
+            document.getElementById('btn-next').classList.add('hidden');
+        }
+
+        function revealRole() {
+            const secretBox = document.getElementById('secret-word');
+            
+            if (currentPlayer === impostorIndex) {
+                secretBox.innerText = "🕵️‍♂️ ¡Eres el IMPOSTOR! Disimula.";
+                secretBox.style.color = "#ff4757";
+            } else {
+                secretBox.innerText = `Palabra: ${palabraDeLaRonda}`;
+                secretBox.style.color = "#2ed573";
+            }
+            
+            secretBox.style.display = 'block';
+            document.getElementById('btn-reveal').classList.add('hidden');
+            document.getElementById('btn-next').classList.remove('hidden');
+        }
+
+        function nextTurn() {
+            currentPlayer++;
+            if (currentPlayer < totalPlayers) {
+                updateTurnView();
+            } else {
+                // Fin del reparto de roles
+                document.getElementById('screen-game').classList.add('hidden');
+                document.getElementById('screen-play').classList.remove('hidden');
+            }
+        }
+
+        function resetGame() {
+            document.getElementById('screen-play').classList.add('hidden');
+            document.getElementById('screen-setup').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
